@@ -6,6 +6,8 @@
 #include <thread>
 #include <chrono>
 
+std::mutex coutmutex;
+
 class TaskQueue
 {
 private:
@@ -53,6 +55,8 @@ void ProcessTask(TaskQueue& taskQueue, int threadNum)
     while (taskQueue.GetTask(taskNum))
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        std::lock_guard<std::mutex> lock(coutmutex);
         std::cout << "[Worker-" << threadNum << "] обработал задачу " << taskNum << '\n';
     }
 

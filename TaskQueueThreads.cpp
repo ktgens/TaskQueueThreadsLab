@@ -2,6 +2,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+#include <vector>
 #include <thread>
 #include <chrono>
 
@@ -22,15 +23,21 @@ public:
         condition.notify_one();
     }
 
+    void Stop()
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        isFinished = true;
+
+        condition.notify_all();
+    }
+
     bool GetTask(int& res)
     {
         std::unique_lock<std::mutex> lock(mutex);
 
-        condition.wait(lock, [this]() {return !isFinished;});
+        condition.wait(lock, [this]() {return !tasks.empty()||isFinished;});
 
-        if (tasks.empty()) isFinished = true;
-
-        if (isFinished) return false;
+        if (tasks.empty() && isFinished) return false;
 
         res = tasks.front();
         tasks.pop();
@@ -69,6 +76,8 @@ int main()
     {
         taskQueue.AddTask(i);
     }
+
+    taskQueue.Stop();
 
     for(auto& thread: threads )
     {

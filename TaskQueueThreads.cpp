@@ -13,6 +13,8 @@ private:
     std::condition_variable condition;
 
 public:
+    bool isFinished = false;
+
     void AddTask(int i)
     {
         std::lock_guard<std::mutex> lock(mutex);
@@ -20,16 +22,33 @@ public:
         condition.notify_one();
     }
 
-    void GetTask()
+    bool GetTask(int& res)
     {
+        std::unique_lock<std::mutex> lock(mutex);
 
+        condition.wait(lock, [this]() {return !isFinished;});
+
+        if (tasks.empty()) isFinished = true;
+
+        if (isFinished) return false;
+
+        res = tasks.front();
+        tasks.pop();
+
+        return true;
     }
 };
 
-void ProcessTask(TaskQueue& taskQueue)
+void ProcessTask(TaskQueue& taskQueue, int threadNum)
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    std::cout << "[Worker-" << 2 << "] обработал задачу " << 2;
+    int taskNum;
+
+    while (taskQueue.GetTask(taskNum))
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "[Worker-" << threadNum << "] обработал задачу " << taskNum << '\n';
+    }
+
 }
 
 int main()
@@ -43,7 +62,7 @@ int main()
 
     for (int i = 0; i < n;i++)
     {
-        threads.push_back(std::thread(ProcessTask, std::ref(taskQueue)));
+        threads.push_back(std::thread(ProcessTask, std::ref(taskQueue), i));
     }
 
     for (int i = 1; i <= 20; i++)

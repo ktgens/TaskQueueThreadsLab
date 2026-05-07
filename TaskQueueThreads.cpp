@@ -14,9 +14,9 @@ private:
     std::queue<int> tasks;
     std::mutex mutex;
     std::condition_variable condition;
+    bool isFinished = false;
 
 public:
-    bool isFinished = false;
 
     void AddTask(int i)
     {
@@ -71,7 +71,7 @@ int main()
     TaskQueue taskQueue;
     std::vector<std::thread> threads;
 
-    for (int i = 0; i < n;i++)
+    for (int i = 1; i <= n;i++)
     {
         threads.push_back(std::thread(ProcessTask, std::ref(taskQueue), i));
     }

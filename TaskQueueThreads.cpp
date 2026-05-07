@@ -3,6 +3,7 @@
 #include <condition_variable>
 #include <queue>
 #include <thread>
+#include <chrono>
 
 class TaskQueue
 {
@@ -14,14 +15,22 @@ private:
 public:
     void AddTask(int i)
     {
-
+        mutex.lock();
+        tasks.push(i);
+        condition.notify_one();
     }
 
-    void RemoveTask()
+    void GetTask()
     {
 
     }
 };
+
+void Process(int i)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << "[Worker-" << i << "] обработал задачу " << i;
+}
 
 int main()
 {

@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <mutex>
 #include <condition_variable>
 #include <queue>
@@ -57,7 +57,7 @@ void ProcessTask(TaskQueue& taskQueue, int threadNum)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         std::lock_guard<std::mutex> lock(coutmutex);
-        std::cout << "[Worker-" << threadNum << "] îáðàáîòàë çàäà÷ó " << taskNum << '\n';
+        std::cout << "[Worker-" << threadNum << "] Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð» Ð·Ð°Ð´Ð°Ñ‡Ñƒ " << taskNum << '\n';
     }
 
 }
